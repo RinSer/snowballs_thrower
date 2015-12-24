@@ -2,8 +2,12 @@
 
 // Variables
 // Sounds
-import ddf.minim.*;
+/*import ddf.minim.*;
 Minim minim;
+AudioPlayer tune;
+AudioPlayer throw_sound;
+AudioPlayer glass_sound;*/
+Maxim maxim;
 AudioPlayer tune;
 AudioPlayer throw_sound;
 AudioPlayer glass_sound;
@@ -34,6 +38,8 @@ boolean fly = false;
 // Mitten
 PImage mitten_img;
 Mitten mitten;
+float mitten_x;
+float mitten_y;
 // Snowflakes
 PImage snowflake;
 float snow_vel = 1;
@@ -49,19 +55,29 @@ int score = 0;
 // Main setup and procedures
 public void setup(){
   // Sound
-  minim = new Minim(this);
+  /*minim = new Minim(this);
   tune = minim.loadFile("sound/NeilSedaka.mp3");
   tune.setVolume(0.5);
   tune.loop();
   throw_sound = minim.loadFile("sound/throw.mp3");
   throw_sound.setVolume(1);
   glass_sound = minim.loadFile("sound/glass.mp3");
-  glass_sound.setVolume(0.7);
+  glass_sound.setVolume(0.7);*/
+  maxim = new Maxim(this);
+  tune = maxim.loadFile("../sound/NeilSedaka.mp3");
+  tune.setLooping(true);
+  tune.volume(0.5);
+  throw_sound = maxim.loadFile("../sound/throw.mp3");
+  throw_sound.setLooping(false);
+  throw_sound.volume(1);
+  glass_sound = maxim.loadFile("../sound/glass.mp3");
+  glass_sound.setLooping(false);
+  glass_sound.volume(0.7);
   // Canvas
   size(300, 500);
   frameRate(25);
-  smooth(5);
   background(0);
+  smooth(5)
   // HB Image
   hbc = loadImage("img/hbc.jpg");
   // Mitten
@@ -183,7 +199,7 @@ void draw(){
     if (sound_on) {
       tune.play();
     } else {
-      tune.pause();
+      tune.stop();
     }
     
   } else { // pause screen
@@ -214,7 +230,9 @@ void mousePressed() {
       }
       // Snowball throw
       if (mouseY > 30) {
-        fly = true;
+        if (mouseX == mitten_x && mouseY == mitten_y) {
+          fly = true;
+        }
       }
     }
   } else { // Start screen
@@ -311,11 +329,13 @@ class Snowball {
     } else {
       this.x_direction = -1;
     }
+    mitten_x = this.x;
+    mitten_y = this.y;
   }
   
   private void thrown() {
     if (size > 0) {
-      throw_sound.rewind();
+      throw_sound.cue(0);
       throw_sound.play();
       fill(255);
       stroke(255);
@@ -324,11 +344,9 @@ class Snowball {
       this.y -= velY;
       this.size -= 5;
     } else {
-      //throw_sound.pause();
-      //throw_sound.rewind();
       if (this.x > aim_x && this.x < (aim_x+70) && this.y > aim_y && this.y < (aim_y+50)) {
-        throw_sound.pause();
-        glass_sound.rewind();
+        throw_sound.stop();
+        glass_sound.cue(0);
         glass_sound.play();
         score += 1;
         bingo = true;
